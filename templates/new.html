@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>new</title>
+    <meta charset="UTF-8">
+    <meta name = "description" content="choosing your foundation!!">
+    <meta name = "author" content = "Sophia Cheng">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" type="text/css" href="./static/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+
+    <!--navigation -->
+    <el-menu class="el-menu-demo" mode="horizontal" active-text-color="#fff">
+        <el-menu-item><a href="/" class="logo">fendeyeee</a></el-menu-item>
+        <el-menu-item><a href="/new">新增資料</a></el-menu-item>
+        <el-menu-item><a href="/introduction">使用說明</a></el-menu-item>
+    </el-menu>
+
+    <form id="addForm">
+        <label for="group">你是第</label>
+        <input type="text" id="group" name="group" readonly>
+        <label for="group">個人！</label>
+        <div id="productsContainer">
+
+        </div>
+
+        <button type="button" onclick="addProduct()">Add Product</button>
+        <button type="button" onclick="removeProduct()">Remove Product</button>
+        <button type="submit" id="submitButton" disabled>Submit</button>
+    </form>
+
+    <div class="center">
+        <span class="bot_text">fendeyeee</span>
+        <span class="copyright">Copyright © 2024 Sophia Cheng, All Rights Reserved.</span>
+    </div>
+
+    <script>
+        var groupID;
+
+        $(document).ready(function() {
+            // Fetch the next group ID from the server
+            $.ajax({
+                type: 'GET',
+                url: '/get_next_group_id',
+                success: function(response) {
+                    groupID = response.next_group_id;
+                    $('#group').val(groupID);
+                }
+            });
+        });
+
+        function updateSubmitButtonState() {
+            // Enable submit button only if there are at least two product entries
+            var productCount = $('#productsContainer .product').length;
+            $('#submitButton').prop('disabled', productCount < 1);
+        }
+
+        function addProduct() {
+            // Fetch product data from the server
+            $.ajax({
+                type: 'GET',
+                url: '/get_dropdown_data',
+                success: function(response) {
+                    var productHTML = '<div class="product">';
+                    productHTML += '<label for="brand">Brand:</label>';
+                    productHTML += '<select class="brand" name="brand[]">';
+                    productHTML += '<option value="" selected disabled>Select a Brand</option>';
+                    $.each(response.brands, function(i, brand) {
+                        productHTML += '<option value="' + brand + '">' + brand + '</option>';
+                    });
+                    productHTML += '</select>';
+
+                    productHTML += '<label for="name">Name:</label>';
+                    productHTML += '<select class="name" name="name[]">';
+                    productHTML += '<option value="" selected disabled>Select a Name</option>';
+                    productHTML += '</select>';
+
+                    productHTML += '<label for="color">Color:</label>';
+                    productHTML += '<select class="color" name="color[]">';
+                    productHTML += '<option value="" selected disabled>Select a Color</option>';
+                    productHTML += '</select>';
+
+                    productHTML += '</div>';
+
+                    $('#productsContainer').append(productHTML);
+                }
+            });
+            updateSubmitButtonState();
+        }
+
+        function removeProduct() {
+            // Remove the last added product
+            $('#productsContainer .product:last-child').remove();
+            updateSubmitButtonState();
+        }
+
+        $(document).on('change', '.brand', function() {
+            // Handle brand selection change
+            var selectedBrand = $(this).val();
+            var productContainer = $(this).closest('.product');
+            var nameSelect = productContainer.find('.name');
+
+            // Fetch names for the selected brand from the server
+            $.ajax({
+                type: 'POST',
+                url: '/get_names',
+                data: {
+                    selected_brand: selectedBrand
+                },
+                success: function(response) {
+                    var names = response.names;
+                    nameSelect.empty();
+                    nameSelect.append('<option value="" selected disabled>Select a Name</option>');
+                    $.each(names, function(i, name) {
+                        nameSelect.append('<option value="' + name + '">' + name + '</option>');
+                    });
+                }
+            });
+        });
+
+        $(document).on('change', '.name', function() {
+            // Handle name selection change
+            var selectedBrand = $(this).closest('.product').find('.brand').val();
+            var selectedName = $(this).val();
+            var productContainer = $(this).closest('.product');
+            var colorSelect = productContainer.find('.color');
+
+            // Fetch colors for the selected brand and name from the server
+            $.ajax({
+                type: 'POST',
+                url: '/get_colors',
+                data: {
+                    selected_brand: selectedBrand,
+                    selected_name: selectedName
+                },
+                success: function(response) {
+                    var colors = response.colors;
+                    colorSelect.empty();
+                    colorSelect.append('<option value="" selected disabled>Select a Color</option>');
+                    if (colors) {
+                        $.each(colors, function(i, color) {
+                            colorSelect.append('<option value="' + color + '">' + color + '</option>');
+                        });
+                    }
+                }
+            });
+        });
+
+        // Additional validation function to check if the data is complete
+        function validateData() {
+            var isValid = true;
+
+            // Check each product entry
+            $('#productsContainer .product').each(function(index) {
+                var brand = $(this).find('.brand').val();
+                var name = $(this).find('.name').val();
+                var color = $(this).find('.color').val();
+
+                // Check if any of the fields is empty
+                if (!brand || !name || !color) {
+                    isValid = false;
+                    return false;  // Exit the loop if any product is incomplete
+                }
+            });
+
+            return isValid;
+        }
+
+        // Modify the form submission logic to include data validation
+        $('#addForm').submit(function(event) {
+            event.preventDefault();
+
+            // Validate the data before submitting
+            if (!validateData()) {
+                alert('Please complete all fields for at least two products before submitting.');
+                return;
+            }
+
+            // Continue with form submission if data is valid
+            $.ajax({
+                type: 'POST',
+                url: '/add',
+                contentType: 'application/x-www-form-urlencoded',
+                data: $('#addForm').serialize(),
+                success: function(response) {
+                    alert('Products added successfully!');
+                    location.reload(true);
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                }
+            });
+        });
+
+
+                // Fetch the next group ID from the server
+                $.ajax({
+            type: 'GET',
+            url: '/get_next_group_id',
+            success: function(response) {
+                groupID = response.next_group_id;
+                $('#group').val(groupID);
+            }
+        });
+
+        // Initialize submit button state
+        updateSubmitButtonState();
+    </script>
+
+</body>
+</html>
