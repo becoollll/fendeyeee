@@ -15,6 +15,9 @@
 <body>
 
     <!--navigation -->
+    <div class = "center">
+    
+    
     <el-menu class="el-menu-demo" mode="horizontal" active-text-color="#fff">
         <el-menu-item><a href="/" class="logo">fendeyeee</a></el-menu-item>
         <el-menu-item><a href="/new">新增資料</a></el-menu-item>
@@ -25,14 +28,17 @@
         <label for="group">你是第</label>
         <input type="text" id="group" name="group" readonly>
         <label for="group">個人！</label>
+        
         <div id="productsContainer">
-
-        </div>
-
-        <button type="button" onclick="addProduct()">Add Product</button>
-        <button type="button" onclick="removeProduct()">Remove Product</button>
-        <button type="submit" id="submitButton" disabled>Submit</button>
+        
+        
+    </div>
+        <br>
+        <button type="button" class = 'btn' onclick="addProduct()">Add Product</button>
+        <button type="button" class = 'btn' onclick="removeProduct()">Remove Product</button>
+        <button type="submit" class = 'btn' id="submitButton" disabled>Submit</button>
     </form>
+</div> 
 
     <div class="center">
         <span class="bot_text">fendeyeee</span>

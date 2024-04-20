@@ -7,8 +7,8 @@ app = Flask(__name__)
 # Update these variables with your PostgreSQL database details
 db_host = 'localhost'
 db_port = '5432'
-db_user = 'sophiacheng'
-db_password = 'qweqaz'
+db_user = 'wilson'
+db_password = 'qwert'
 db_name = 'foundation'
 
 # Establish a connection to the PostgreSQL database
