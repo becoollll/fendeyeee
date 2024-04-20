@@ -1,7 +1,7 @@
 import csv
 import psycopg2
 
-# PostgreSQL数据库连接参数
+
 DB_NAME = "foundation"
 DB_USER = "wilson"
 DB_PASSWORD = "qwert"
@@ -10,7 +10,7 @@ DB_PORT = "5432"
 
 
 
-# 连接到PostgreSQL数据库
+
 conn = psycopg2.connect(
     dbname=DB_NAME,
     user=DB_USER,
@@ -19,10 +19,10 @@ conn = psycopg2.connect(
     port=DB_PORT
 )
 
-# 创建游标对象
+
 cur = conn.cursor()
 
-# 创建表格
+
 cur.execute("""
 CREATE TABLE IF NOT EXISTS cosmetics (
     id SERIAL PRIMARY KEY,
@@ -35,20 +35,22 @@ CREATE TABLE IF NOT EXISTS cosmetics (
 
 cur = conn.cursor()
 
-# 读取CSV文件并插入数据到数据库的items表格
-with open('cosmetics.csv', 'r', encoding='utf-8') as file:
+# insert csv file into db
+with open('items.csv', 'r', encoding='utf-8') as file:
     reader = csv.reader(file)
-    next(reader)  # 跳过标题行
+    next(reader)  
+    i = 1
     for row in reader:
-        brand, name, type_, color, _ = row  # 忽略'makeup'列
+        brand, name, type_, color, _ = row  
+        #print(row)
+        
         cur.execute(
-            "INSERT INTO items (brand, name, type, color) VALUES (%s, %s, %s, %s)",
-            (brand, name, type_, color)
+            "INSERT INTO items ( id ,brand, name, type, color) VALUES (%s ,%s, %s, %s, %s)",
+            (i, brand, name, type_, color)
         )
+        i = i+1
 
-# 提交事务
+
 conn.commit()
-
-# 关闭游标和连接
 cur.close()
 conn.close()
