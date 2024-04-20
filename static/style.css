@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Noto+Serif+TC:wght@600;700;900&family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
 html,
 body {
@@ -42,9 +43,11 @@ select {
 }
 
 .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: x-large;
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.5em;
     align-items: center;
+    margin-top: -10px;
+    font-weight: bold;
 }
 
 .logo:hover {
@@ -70,10 +73,12 @@ button {
 
 .bot_text {
     color: #d3bfb4;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8em;
+    font-family: 'Dancing Script', cursive;
+    font-size: 3em;
     padding-top: 10%;
     display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
 .copyright {
